@@ -1,7 +1,7 @@
 open Graphics
 
-let width = 800
-let height = 600
+let width = 700
+let height = 500
 let cell_size = 20
 
 type direction = Up | Down | Left | Right
