@@ -1,1 +1,252 @@
-bonjour Marouane.
+open Graphics
+
+type page = Accueil | Niveau | Quitter
+type direction = Up | Down | Left | Right
+type case = Pomme | Vide | Snake | Obstacle
+
+let niv = ref 0
+let actual = ref Accueil
+
+let page () =
+  clear_graph (); 
+  let continue = ref true in
+  let affichniveau niveau x y =
+    set_color red;
+    set_text_size 5;
+    moveto (x+47) (y+20);
+    draw_string (string_of_int(niveau));
+    moveto (x+23) (y+60);
+    draw_string ("Niveau")
+  in
+  
+  let dessin () =
+    set_color black;
+    (* titre snake *)
+    moveto (326) (400);
+    set_text_size 1;
+    draw_string "SNAKE";
+
+   draw_rect (100) (250) (100) (100);
+    draw_rect (300) (250) (100) (100);
+    draw_rect (500) (250) (100) (100);
+    draw_rect (200) (100) (100) (100);
+    draw_rect (400) (100) (100) (100);
+    set_color green;
+    fill_rect (101) (251) (98) (98);
+    fill_rect (301) (251) (98) (98);
+    fill_rect (501) (251) (98) (98);
+    fill_rect (201) (101) (98) (98);
+    fill_rect (401) (101) (98) (98);
+    affichniveau 1 (100) (250);
+    affichniveau 2 (300) (250);
+    affichniveau 3 (500) (250);
+    affichniveau 4 (200) (100);
+    affichniveau 5 (400) (100)
+  in
+
+  let whereclick () =
+    if button_down () then
+      let (x,y) = mouse_pos () in
+      if x >= 100 && x <= 200 && y >= 250 && y <= 350 then
+        begin
+          continue := false;
+          niv := 1;
+          actual := Niveau (1)
+        end;
+      if x >= 300 && x <= 400 && y >= 250 && y <= 350 then
+        begin
+          continue := false;
+          niv:= 2;
+          actual := Niveau (2)
+        end;
+      if x >= 500 && x <= 600 && y >= 250 && y <= 350 then
+        begin
+          continue := false;
+          niv := 3;
+          actual := Niveau (3)
+        end;
+      if x >= 200 && x <= 300 && y >= 100 && y <= 200 then begin
+          continue := false;
+          niv := 4;
+          actual := Niveau (4)
+        end;
+      if x >= 400 && x <= 500 && y >= 100 && y <= 200 then 
+        begin
+          continue := false;
+          niv := 5;
+          actual := Niveau (5)
+        end
+  in
+
+  let test () =
+    if key_pressed () then
+      match read_key () with
+      | 'c' -> continue := false; actual := Quitter
+      | _ -> ()
+  in
+  dessin();
+  while !continue do
+    test ();
+    whereclick ()
+  done
+
+
+let jeu () =
+  clear_graph ();
+  Random.self_init ();
+
+  let map n width height cell (grille : case array array) =
+    if n >= 4 then begin
+        set_color yellow;
+        let choix_carte = Random.int 10 in
+
+        let placer_obstacle x y w h =
+          fill_rect (x * cell) (y * cell) (w * cell) (h * cell);
+          for i = x to x + w - 1 do
+            for j = y to y + h - 1 do
+              if i >= 0 && i < width && j >= 0 && j < height then
+                grille.(i).(j) <- Obstacle
+            done
+          done
+        in
+ 
+        match choix_carte with
+        | 0 -> placer_obstacle 10 10 4 30; placer_obstacle 10 40 4 10; placer_obstacle 56 10 4 30; placer_obstacle 56 40 4 10
+        | 1 -> placer_obstacle 15 15 15 2; placer_obstacle 15 33 15 2; placer_obstacle 22 15 2 20; placer_obstacle 40 15 15 2; placer_obstacle 40 33 15 2; placer_obstacle 46 15 2 20
+        | 2 -> placer_obstacle 5 5 20 2;   placer_obstacle 5 43 20 2;  placer_obstacle 45 5 20 2;  placer_obstacle 45 43 20 2; placer_obstacle 25 20 2 10; placer_obstacle 43 20 2 10; placer_obstacle 10 24 12 2
+        | 3 -> placer_obstacle 33 10 4 12; placer_obstacle 33 30 4 12; placer_obstacle 15 23 15 4; placer_obstacle 52 23 15 4
+        | 4 -> placer_obstacle 8 30 3 15;  placer_obstacle 12 32 15 2; placer_obstacle 50 15 2 10; placer_obstacle 48 17 8 3;  placer_obstacle 20 5 30 2;  placer_obstacle 55 35 5 5
+        | 5 -> placer_obstacle 20 0 3 18;  placer_obstacle 20 32 3 18; placer_obstacle 48 0 3 20;  placer_obstacle 48 30 3 20
+        | 6 -> placer_obstacle 25 0 4 20;  placer_obstacle 25 30 4 20; placer_obstacle 55 0 4 22;  placer_obstacle 55 28 4 22
+        | 7 -> placer_obstacle 8 8 6 6;    placer_obstacle 66 8 6 6;   placer_obstacle 8 36 6 6;   placer_obstacle 66 36 6 6
+        | 8 -> placer_obstacle 15 10 20 2; placer_obstacle 45 40 20 2; placer_obstacle 30 20 2 20
+        | 9 -> placer_obstacle 10 12 2 26; placer_obstacle 68 12 2 26; placer_obstacle 25 12 30 2; placer_obstacle 25 38 30 2
+        | _ -> ()
+      end in
+  
+  let vitesse n =
+    match n with
+    | 1 -> Unix.sleepf 0.1
+    | 2 -> Unix.sleepf 0.07
+    | 3 -> Unix.sleepf 0.06
+    | 4 -> Unix.sleepf 0.05
+    | 5 -> Unix.sleepf 0.04
+    | _ -> ()
+  in
+  let remplircase grille (a, b) quoi =
+    grille.(a).(b) <- quoi
+  in
+  let cell = 10 in
+  let width = 700 / cell in
+  let height = 500 / cell in
+  let score = ref 0 in
+  let snake = Queue.create () in
+  let start_x, start_y = width / 2, height / 2 in
+  Queue.push (start_x, start_y) snake;
+  
+  let dir = ref Right in
+  let food = ref (Random.int width, Random.int height) in
+  let grille = Array.make_matrix width height Vide in
+  
+  map !niv width height cell grille;
+  remplircase grille (start_x, start_y) Snake;
+  remplircase grille !food Pomme;
+
+  set_color black;
+  moveto 250 250;
+  let rec game_loop (hx, hy) =
+    if key_pressed () then begin
+        match read_key () with
+        | 'z' when !dir <> Down  -> dir := Up
+        | 's' when !dir <> Up    -> dir := Down
+        | 'q' when !dir <> Right -> dir := Left
+        | 'd' when !dir <> Left  -> dir := Right
+        | 'm' -> actual := Accueil (* On retourne à l'accueil avec M *)
+        | _ -> ()
+      end;
+    
+    let new_head =
+      match !dir with
+      | Up    -> (hx, hy + 1)
+      | Down  -> (hx, hy - 1)
+      | Left  -> (hx - 1, hy)
+      | Right -> (hx + 1, hy)
+    in
+    let (nx, ny) = new_head in
+    
+    if nx < 0 || ny < 0 || nx >= width || ny >= height || (!actual = Accueil) then begin
+      actual := Accueil (* Game Over (Mur) -> Retour au menu *)
+    end
+    else if grille.(nx).(ny) = Snake || grille.(nx).(ny) = Obstacle then begin
+      actual := Accueil (* Game Over (Serpent ou Obstacle) -> Retour au menu *)
+    end
+    else if grille.(nx).(ny) = Pomme then begin
+        score := !score + 1;
+        set_color white;
+        fill_rect 10 480 (cell*10) (cell*2);
+        Queue.push new_head snake;
+        grille.(nx).(ny) <- Snake;
+        food := (Random.int width, Random.int height);
+        remplircase grille !food Pomme;
+        set_color black;
+        moveto 10 480;
+        draw_string ("Score : " ^ string_of_int(!score));
+        
+        set_color green;
+        fill_rect (nx * cell) (ny * cell) cell cell;
+        set_color red;
+        let (fx, fy) = !food in
+        fill_rect (fx * cell) (fy * cell) cell cell;
+      
+        vitesse !niv;
+        game_loop new_head
+      end
+    else begin
+        Queue.push new_head snake;
+        grille.(nx).(ny) <- Snake;
+
+        let (qx, qy) = Queue.pop snake in
+        grille.(qx).(qy) <- Vide;
+
+        set_color white;
+        fill_rect (qx * cell) (qy * cell) cell cell;
+
+        set_color green;
+        fill_rect (nx * cell) (ny * cell) cell cell;
+        set_color red;
+        let (fx, fy) = !food in
+        fill_rect (fx * cell) (fy * cell) cell cell;
+
+        vitesse !niv;
+        game_loop new_head
+      end
+  in
+
+  try
+    let rec attente () =
+      if key_pressed () then begin
+        match read_key () with
+        | 'd' ->
+           game_loop (start_x, start_y)
+        | _ -> attente ()
+      end else attente ()
+    in
+    attente ()
+  with
+  | Graphic_failure _ ->
+     print_endline "Fenêtre fermée."
+
+
+let () =
+  open_graph " 700x500";
+  
+  while !actual <> Quitter do
+    match !actual with
+    | Accueil -> page ()
+    | Niveau -> jeu ()
+    | Quitter -> ()
+  done;
+  
+  close_graph ()
+
+
