@@ -10,19 +10,28 @@ let affichniveau niveau x y =
   draw_string ("Niveau")
 
 
+let l = int_of_string(read_line())  
+let h = int_of_string(read_line())  
+
+let resizey y =
+   int_of_float((float_of_int(y)/.500.)*. float_of_int(h))   
+
+let resizex x =
+   int_of_float((float_of_int(x)/.700.)*. float_of_int(l))
+
 let dessin () =
   set_color black;
   (* titre snake *)
-  moveto (326) (400);
+  moveto (resizex 326) (resizey 400);
   set_text_size 1;
   draw_string "SNAKE";
 
   (* Cases et niveaux *)
-  draw_rect (100) (250) (100) (100);
-  draw_rect (300) (250) (100) (100);
-  draw_rect (500) (250) (100) (100);
-  draw_rect (200) (100) (100) (100);
-  draw_rect (400) (100) (100) (100);
+  draw_rect (resizex 100) (resizey 250) (100) (100);
+  draw_rect (resizex 300) (resizey 250) (100) (100);
+  draw_rect (resizex 500) (resizey 250) (100) (100);
+  draw_rect (resizex 200) (resizey 100) (100) (100);
+  draw_rect (resizex 400) (resizey 100) (100) (100);
   set_color green;
   fill_rect (101) (251) (98) (98);
   fill_rect (301) (251) (98) (98);
@@ -41,26 +50,26 @@ let dessin () =
 let whereclick () =
   if button_down () then
     let (x,y) = mouse_pos () in
-    if x >= 100 && x <= 200 && y >= 250 && y <= 350 then
+    if x >= resizex 100 && x <= resizex 200 && y >= resizey 250 && y <= resizey 350 then
       begin
         continue := false;
         print_int(1)
       end;
-    if x >= 300 && x <= 400 && y >= 250 && y <= 350 then
+    if x >= resizex 300 && x <= resizex 400 && y >= resizey 250 && y <= resizey 350 then
       begin
         continue := false;
         print_int(2)
       end;
-    if x >= 500 && x <= 600 && y >= 250 && y <= 350 then
+    if x >= resizex 500 && x <= resizex 600 && y >= resizey 250 && y <= resizey 350 then
       begin
         continue := false;
         print_int(3)
       end;
-    if x >= 200 && x <= 300 && y >= 100 && y <= 200 then begin
+    if x >= resizex 200 && x <= resizex 300 && y  >= resizey 100 && y <= resizey 200 then begin
         continue := false;
         print_int(4)
       end;
-    if x >= 400 && x <= 500 && y >= 100 && y <= 200 then 
+    if x >= resizex 400 && x <= resizex 500 && y >= resizey 100 && y <= resizey 200 then 
       begin
         continue := false;
         print_int(5)
@@ -72,8 +81,10 @@ let test () =
     | 'c' -> continue := false
     | _ -> ()
 
+let str = " " ^ string_of_int(l) ^ "x" ^ string_of_int(h)
+
 let () =
-  open_graph " 700x500";
+  open_graph str;  
   dessin();
   while !continue do
     test ();
