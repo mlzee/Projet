@@ -1,23 +1,25 @@
 open Graphics
 let continue = ref true
 
-let affichniveau niveau x y =
-  set_color red;
-  set_text_size 5;
-  moveto (x+47) (y+20);
-  draw_string (string_of_int(niveau));
-  moveto (x+23) (y+60);
-  draw_string ("Niveau")
-
-
-let l = int_of_string(read_line())  
-let h = int_of_string(read_line())  
+let l = int_of_string(read_line())
+let h= int_of_string(read_line())
 
 let resizey y =
-   int_of_float((float_of_int(y)/.500.)*. float_of_int(h))   
+   int_of_float((float_of_int(y)/.500.)*. float_of_int(h))
 
 let resizex x =
    int_of_float((float_of_int(x)/.700.)*. float_of_int(l))
+
+
+let affichniveau niveau x y =
+  set_color red;
+  set_text_size 5;
+  moveto ((resizex x) + (resizex 47)) ((resizey y) + (resizey 20));
+  draw_string (string_of_int(niveau));
+  moveto ((resizex x) + (resizex 23)) ((resizey y) + (resizey 60));
+  draw_string ("Niveau")
+
+
 
 let dessin () =
   set_color black;
@@ -27,17 +29,17 @@ let dessin () =
   draw_string "SNAKE";
 
   (* Cases et niveaux *)
-  draw_rect (resizex 100) (resizey 250) (100) (100);
-  draw_rect (resizex 300) (resizey 250) (100) (100);
-  draw_rect (resizex 500) (resizey 250) (100) (100);
-  draw_rect (resizex 200) (resizey 100) (100) (100);
-  draw_rect (resizex 400) (resizey 100) (100) (100);
+  draw_rect (resizex 100) (resizey 250) (resizex 100) (resizey 100);
+  draw_rect (resizex 300) (resizey 250) (resizex 100) (resizey 100);
+  draw_rect (resizex 500) (resizey 250) (resizex 100) (resizey 100);
+  draw_rect (resizex 200) (resizey 100) (resizex 100) (resizey 100);
+  draw_rect (resizex 400) (resizey 100) (resizex 100) (resizey 100);
   set_color green;
-  fill_rect (101) (251) (98) (98);
-  fill_rect (301) (251) (98) (98);
-  fill_rect (501) (251) (98) (98);
-  fill_rect (201) (101) (98) (98);
-  fill_rect (401) (101) (98) (98);
+  fill_rect (resizex 101) (resizey 251) (resizex 98) (resizey 98);
+  fill_rect (resizex 301) (resizey 251) (resizex 98) (resizey 98);
+  fill_rect (resizex 501) (resizey 251) (resizex 98) (resizey 98);
+  fill_rect (resizex 201) (resizey 101) (resizex 98) (resizey 98);
+  fill_rect (resizex 401) (resizey 101) (resizex 98) (resizey 98);
   affichniveau 1 (100) (250);
   affichniveau 2 (300) (250);
   affichniveau 3 (500) (250);
@@ -69,7 +71,7 @@ let whereclick () =
         continue := false;
         print_int(4)
       end;
-    if x >= resizex 400 && x <= resizex 500 && y >= resizey 100 && y <= resizey 200 then 
+    if x >= resizex 400 && x <= resizex 500 && y >= resizey 100 && y <= resizey 200 then
       begin
         continue := false;
         print_int(5)
@@ -84,7 +86,7 @@ let test () =
 let str = " " ^ string_of_int(l) ^ "x" ^ string_of_int(h)
 
 let () =
-  open_graph str;  
+  open_graph str;
   dessin();
   while !continue do
     test ();
