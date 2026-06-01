@@ -13,10 +13,6 @@ let () = print_endline "Entrez la hauteur de la fenêtre (ex: 600) :"
 let h = int_of_string (read_line ())
 let str = " " ^ string_of_int l ^ "x" ^ string_of_int h
 
-let rec pgcd a b =
-  if b = 0 then a
-  else pgcd b (a mod b)
-
 let resizey y =
   int_of_float ((float_of_int y /. 500.) *. float_of_int h)
 
@@ -97,7 +93,7 @@ let jeu () =
   let remplircase grille (a, b) quoi =
     grille.(a).(b) <- quoi
   in
-  let cell = (pgcd l h) / 10 in
+  let cell = 10 in
   let width = l / cell in
   let height = h / cell in
   let score = ref 0 in
